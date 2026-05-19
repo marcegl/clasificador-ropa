@@ -1,0 +1,418 @@
+:root {
+  --bg: #0b1220;
+  --bg-soft: #111c2e;
+  --card: #15233a;
+  --card-2: #1c2e4a;
+  --line: #25395a;
+  --text: #e9eef7;
+  --muted: #93a4c0;
+  --brand: #14b8a6;
+  --brand-ink: #042f2a;
+  --warn: #fbbf24;
+  --warn-bg: #3a2e07;
+  --tip: #7dd3fc;
+  --tip-bg: #082f44;
+  --radius: 14px;
+  font-synthesis: none;
+  -webkit-text-size-adjust: 100%;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+}
+
+body {
+  background: radial-gradient(1200px 600px at 50% -10%, #1a2c47 0%, var(--bg) 60%);
+  color: var(--text);
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  line-height: 1.5;
+}
+
+.app {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 24px 18px 64px;
+}
+
+.hero {
+  text-align: center;
+  padding: 28px 8px 8px;
+}
+
+.hero h1 {
+  margin: 0 0 8px;
+  font-size: clamp(1.7rem, 5vw, 2.4rem);
+  letter-spacing: -0.02em;
+}
+
+.hero p {
+  margin: 0 auto;
+  max-width: 52ch;
+  color: var(--muted);
+}
+
+main {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  margin-top: 22px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px;
+}
+
+.card h2 {
+  margin: 0 0 14px;
+  font-size: 1.1rem;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.field-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+input,
+select {
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  color: var(--text);
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  width: 100%;
+}
+
+input:focus,
+select:focus {
+  outline: 2px solid var(--brand);
+  outline-offset: 1px;
+}
+
+/* ---- Washer picker ---- */
+.washer-specs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.chip {
+  background: var(--card-2);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 0.82rem;
+  color: var(--muted);
+}
+
+/* ---- Presets ---- */
+.presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.preset {
+  background: var(--card-2);
+  border: 1px solid var(--line);
+  color: var(--text);
+  border-radius: 999px;
+  padding: 7px 13px;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: border-color 0.15s, transform 0.05s;
+}
+
+.preset:hover {
+  border-color: var(--brand);
+}
+
+.preset:active {
+  transform: scale(0.97);
+}
+
+/* ---- Garment form ---- */
+.garment-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  align-items: end;
+}
+
+.garment-form .field:first-child {
+  grid-column: 1 / -1;
+}
+
+.garment-form .qty input {
+  max-width: 110px;
+}
+
+button {
+  font-family: inherit;
+}
+
+.btn-primary {
+  grid-column: 1 / -1;
+  background: var(--brand);
+  color: var(--brand-ink);
+  border: 0;
+  border-radius: 10px;
+  padding: 12px 16px;
+  font-weight: 700;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.btn-primary:hover {
+  filter: brightness(1.08);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--muted);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 6px 12px;
+  font-size: 0.82rem;
+  cursor: pointer;
+}
+
+.btn-ghost:hover {
+  color: var(--text);
+  border-color: var(--brand);
+}
+
+/* ---- Garment list ---- */
+.list-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.list-head h2 {
+  margin: 0;
+}
+
+.garment-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.garment-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 9px 12px;
+}
+
+.g-name {
+  font-weight: 600;
+}
+
+.garment-list .muted {
+  margin-left: auto;
+}
+
+.swatch {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  flex: none;
+}
+
+.btn-x {
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 4px 6px;
+}
+
+.btn-x:hover {
+  color: #fca5a5;
+}
+
+/* ---- Results ---- */
+.results h2 {
+  margin: 8px 0 12px;
+  font-size: 1.25rem;
+}
+
+.loads {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.load-head {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.load-index {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--brand-ink);
+  background: var(--brand);
+  border-radius: 999px;
+  padding: 3px 10px;
+}
+
+.load h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.load-program {
+  margin: 14px 0;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 14px;
+}
+
+.program-name {
+  font-weight: 700;
+  font-size: 1.05rem;
+  color: var(--brand);
+}
+
+.program-stats {
+  display: flex;
+  gap: 22px;
+  margin-top: 10px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat strong {
+  font-size: 1.3rem;
+}
+
+.stat small {
+  color: var(--muted);
+  font-size: 0.72rem;
+}
+
+.stat .ok {
+  color: var(--brand);
+}
+
+.stat .no {
+  color: #fca5a5;
+}
+
+.load-garments {
+  list-style: none;
+  margin: 0 0 8px;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.load-garments li {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--card-2);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: 0.85rem;
+}
+
+.alert {
+  margin: 8px 0 0;
+  padding: 9px 12px;
+  border-radius: 9px;
+  font-size: 0.88rem;
+}
+
+.alert.warn {
+  background: var(--warn-bg);
+  color: var(--warn);
+}
+
+.alert.tip {
+  background: var(--tip-bg);
+  color: var(--tip);
+}
+
+.alert.info {
+  background: var(--card);
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.small {
+  font-size: 0.8rem;
+}
+
+.empty {
+  text-align: center;
+  color: var(--muted);
+  padding: 30px 0;
+}
+
+.footer {
+  margin-top: 40px;
+  text-align: center;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
+.footer a {
+  color: var(--brand);
+}
+
+@media (max-width: 520px) {
+  .program-stats {
+    gap: 16px;
+  }
+  .garment-list .muted {
+    margin-left: 0;
+    width: 100%;
+  }
+}
