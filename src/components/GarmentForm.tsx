@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import {
+  COLOR_EXAMPLES,
   COLOR_LABELS,
   FABRIC_LABELS,
   GARMENT_PRESETS,
@@ -21,12 +22,14 @@ export function GarmentForm({ onAdd }: Props) {
   const [color, setColor] = useState<ColorGroup>('colores')
   const [soil, setSoil] = useState<Soil>('normal')
   const [qty, setQty] = useState(1)
+  const [isNew, setIsNew] = useState(false)
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault()
-    onAdd({ name: name.trim() || 'Prenda', fabric, color, soil, qty })
+    onAdd({ name: name.trim() || 'Prenda', fabric, color, soil, qty, isNew })
     setName('')
     setQty(1)
+    setIsNew(false)
   }
 
   return (
@@ -81,7 +84,7 @@ export function GarmentForm({ onAdd }: Props) {
           <select value={color} onChange={(e) => setColor(e.target.value as ColorGroup)}>
             {COLORS.map((c) => (
               <option key={c} value={c}>
-                {COLOR_LABELS[c]}
+                {COLOR_LABELS[c]} — {COLOR_EXAMPLES[c]}
               </option>
             ))}
           </select>
@@ -107,6 +110,17 @@ export function GarmentForm({ onAdd }: Props) {
             value={qty}
             onChange={(e) => setQty(Math.max(1, Number(e.target.value)))}
           />
+        </label>
+
+        <label className="check-new">
+          <input
+            type="checkbox"
+            checked={isNew}
+            onChange={(e) => setIsNew(e.target.checked)}
+          />
+          <span>
+            Es nueva <span className="muted small">(1er lavado aparte si es de color)</span>
+          </span>
         </label>
 
         <button type="submit" className="btn-primary">

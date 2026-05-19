@@ -407,6 +407,107 @@ button {
   color: var(--brand);
 }
 
+/* ---- Guía de colores ---- */
+.guide-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.guide-list li {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  font-size: 0.92rem;
+  color: var(--text);
+}
+
+.guide-icon {
+  font-size: 1.1rem;
+  line-height: 1.3;
+  flex: none;
+}
+
+/* ---- Cabecera de color en la tanda ---- */
+.color-banner {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  background: var(--bg-soft);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  margin: 12px 0;
+}
+
+.color-dot {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  flex: none;
+  margin-top: 2px;
+}
+
+.color-name {
+  display: block;
+  font-size: 1rem;
+  letter-spacing: 0.01em;
+}
+
+.color-rule {
+  margin: 3px 0 0;
+  font-size: 0.86rem;
+  color: var(--muted);
+}
+
+.load-title {
+  margin: 0 0 4px;
+  font-size: 1.05rem;
+}
+
+.badge-new {
+  margin-left: auto;
+  background: #7c2d12;
+  color: #fed7aa;
+  border-radius: 999px;
+  padding: 3px 12px;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+.tag-new {
+  margin-left: 6px;
+  background: #7c2d12;
+  color: #fed7aa;
+  border-radius: 999px;
+  padding: 1px 8px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  vertical-align: middle;
+}
+
+/* ---- Checkbox "es nueva" ---- */
+.check-new {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  font-size: 0.9rem;
+  color: var(--text);
+  cursor: pointer;
+}
+
+.check-new input {
+  width: auto;
+  accent-color: var(--brand);
+  transform: scale(1.15);
+}
+
 @media (max-width: 520px) {
   .program-stats {
     gap: 16px;

@@ -39,10 +39,10 @@ const FAMILY_LABEL: Record<Family, string> = {
 }
 
 /** Bucket de color: dos colores en distinto bucket NO se mezclan. */
-type ColorBucket = 'CLAROS' | 'COLOR' | 'OSCUROS'
+type ColorBucket = 'BLANCOS' | 'CLAROS' | 'COLOR' | 'OSCUROS'
 
 const COLOR_BUCKET: Record<ColorGroup, ColorBucket> = {
-  blancos: 'CLAROS',
+  blancos: 'BLANCOS',
   claros: 'CLAROS',
   colores: 'COLOR',
   oscuros: 'OSCUROS',
@@ -50,9 +50,34 @@ const COLOR_BUCKET: Record<ColorGroup, ColorBucket> = {
 }
 
 const COLOR_BUCKET_LABEL: Record<ColorBucket, string> = {
-  CLAROS: 'Blancos y claros',
-  COLOR: 'Colores',
+  BLANCOS: 'Blancos',
+  CLAROS: 'Claros (beige, crema, pastel)',
+  COLOR: 'Colores vivos',
   OSCUROS: 'Oscuros y negros',
+}
+
+/** Por qué estos colores van juntos / separados. */
+const COLOR_BUCKET_RULE: Record<ColorBucket, string> = {
+  BLANCOS:
+    'Los blancos van solos para no opacarse. Si querés una sola tanda, podés sumarles claros (beige/crema) a 40°.',
+  CLAROS:
+    'Beige, crema y pastel van juntos. Lejos de colores vivos y oscuros para que no se manchen.',
+  COLOR:
+    'Colores vivos juntos y del revés. Nunca con blancos ni claros: pueden teñirlos.',
+  OSCUROS:
+    'Oscuros y negros juntos, del revés y en frío para que no destiñan sobre lo claro.',
+}
+
+const COLOR_BUCKET_HEX: Record<ColorBucket, string> = {
+  BLANCOS: '#f8fafc',
+  CLAROS: '#fde68a',
+  COLOR: '#ef4444',
+  OSCUROS: '#1e293b',
+}
+
+/** El primer lavado se aísla solo para colores vivos y oscuros nuevos. */
+function needsFirstWash(bucket: ColorBucket): boolean {
+  return bucket === 'COLOR' || bucket === 'OSCUROS'
 }
 
 /** Familias que NO conviene secar en secarropas. */
@@ -122,7 +147,8 @@ function recommendTemp(
   else if (bucket === 'COLOR') temp = Math.min(temp, 40)
 
   // Suciedad: sube temperatura solo en telas resistentes y claras.
-  if (maxSoil >= 2 && family === 'resistente' && bucket === 'CLAROS') {
+  const esClaro = bucket === 'BLANCOS' || bucket === 'CLAROS'
+  if (maxSoil >= 2 && family === 'resistente' && esClaro) {
     temp = Math.max(temp, 60)
   } else if (maxSoil >= 2 && family === 'resistente') {
     temp = Math.max(temp, 40)
@@ -150,7 +176,10 @@ export function classify(
 ): ClassifyResult {
   const groups = new Map<string, Garment[]>()
   for (const g of garments) {
-    const key = `${FABRIC_FAMILY[g.fabric]}|${COLOR_BUCKET[g.color]}`
+    const bucket = COLOR_BUCKET[g.color]
+    // Las prendas de color nuevas se aíslan en su propia tanda de primer lavado.
+    const firstWash = !!g.isNew && needsFirstWash(bucket)
+    const key = `${FABRIC_FAMILY[g.fabric]}|${bucket}|${firstWash ? 'NEW' : 'STD'}`
     const list = groups.get(key) ?? []
     list.push(g)
     groups.set(key, list)
@@ -159,9 +188,13 @@ export function classify(
   const loads: WashLoad[] = []
 
   for (const [key, items] of groups) {
-    const [family, bucket] = key.split('|') as [Family, ColorBucket]
+    const [family, bucket, phase] = key.split('|') as [
+      Family,
+      ColorBucket,
+      'NEW' | 'STD',
+    ]
+    const isFirstWash = phase === 'NEW'
     const fabrics = new Set<Fabric>(items.map((i) => i.fabric))
-    const colors = new Set<ColorGroup>(items.map((i) => i.color))
     const maxSoil = Math.max(...items.map((i) => SOIL_RANK[i.soil]))
     const warnings: string[] = []
     const tips: string[] = []
@@ -175,8 +208,12 @@ export function classify(
       )
       loads.push({
         id: key,
-        title: `${FAMILY_LABEL[family]} · ${COLOR_BUCKET_LABEL[bucket]}`,
+        title: `${COLOR_BUCKET_LABEL[bucket]} · ${FAMILY_LABEL[family]}`,
         colorGroup: items[0].color,
+        colorBucketLabel: COLOR_BUCKET_LABEL[bucket],
+        colorRule: COLOR_BUCKET_RULE[bucket],
+        colorHex: COLOR_BUCKET_HEX[bucket],
+        isFirstWash,
         garments: items,
         program: {
           id: 'manual',
@@ -208,16 +245,31 @@ export function classify(
       washer.capacityDryKg > 0 && program.canDry && !NO_MACHINE_DRY.has(family)
 
     // --- Avisos por color (clasificación explícita por color) ---
-    if (bucket === 'CLAROS' && colors.has('blancos') && colors.has('claros')) {
+    if (isFirstWash) {
+      warnings.push(
+        '🆕 Primer lavado de prendas nuevas de color: lavalas solas o solo con colores iguales. ' +
+          'La tela suelta tinte las primeras veces y puede manchar lo demás.',
+      )
       tips.push(
-        'Tenés blancos y claros juntos. Para que los blancos no se opaquen, lo ideal es lavarlos en una tanda aparte.',
+        'Probá si destiñe: humedecé un rincón y pasale un paño blanco. Si lo tiñe, lavala siempre aparte.',
+      )
+    } else if (bucket === 'COLOR' || bucket === 'OSCUROS') {
+      tips.push(
+        '⚠️ Del revés y en frío: el calor y el roce hacen que estos colores destiñan sobre otras prendas.',
+      )
+      tips.push(
+        '💡 Si alguna prenda es nueva, marcala como "nueva" para que su primer lavado vaya aparte.',
       )
     }
-    if (bucket === 'OSCUROS' || bucket === 'COLOR') {
-      tips.push('Lavá del revés y no dejes la ropa mojada amontonada para evitar que destiña.')
+    if (bucket === 'BLANCOS') {
+      tips.push(
+        '✅ Blancos solos, sin nada de color. Para mantenerlos blancos podés sumar un blanqueador suave.',
+      )
     }
-    if (colors.has('colores') || family === 'jean') {
-      tips.push('Si alguna prenda es nueva o de color fuerte, su primer lavado hacelo solo.')
+    if (bucket === 'CLAROS') {
+      tips.push(
+        '✅ Claros (beige, crema, pastel) juntos. Se pueden combinar con blancos a 40° si querés una sola tanda.',
+      )
     }
 
     // --- Avisos por tela ---
@@ -243,12 +295,18 @@ export function classify(
     }
 
     const totalQty = items.reduce((s, i) => s + i.qty, 0)
+    const prendasTxt = `${totalQty} ${totalQty === 1 ? 'prenda' : 'prendas'}`
+    const title = isFirstWash
+      ? `Primer lavado · ${COLOR_BUCKET_LABEL[bucket]} (${prendasTxt})`
+      : `${COLOR_BUCKET_LABEL[bucket]} · ${FAMILY_LABEL[family]} (${prendasTxt})`
     loads.push({
       id: key,
-      title: `${FAMILY_LABEL[family]} · ${COLOR_BUCKET_LABEL[bucket]} (${totalQty} ${
-        totalQty === 1 ? 'prenda' : 'prendas'
-      })`,
+      title,
       colorGroup: items[0].color,
+      colorBucketLabel: COLOR_BUCKET_LABEL[bucket],
+      colorRule: COLOR_BUCKET_RULE[bucket],
+      colorHex: COLOR_BUCKET_HEX[bucket],
+      isFirstWash,
       garments: items,
       program,
       tempC,
@@ -259,9 +317,14 @@ export function classify(
     })
   }
 
-  // Orden sugerido: primero claros (agua limpia), después color y oscuros,
-  // y al final delicados/lana.
-  const order: Record<ColorBucket, number> = { CLAROS: 0, COLOR: 1, OSCUROS: 2 }
+  // Orden sugerido: primero blancos (agua limpia), después claros, color y
+  // oscuros; las tandas de primer lavado de prendas nuevas, al final.
+  const order: Record<ColorBucket, number> = {
+    BLANCOS: 0,
+    CLAROS: 1,
+    COLOR: 2,
+    OSCUROS: 3,
+  }
   const familyOrder: Record<Family, number> = {
     resistente: 0,
     sintetico: 1,
@@ -272,11 +335,17 @@ export function classify(
     lana: 6,
   }
   loads.sort((a, b) => {
-    const [fa] = a.id.split('|') as [Family]
-    const [fb] = b.id.split('|') as [Family]
+    const [fa, , pa] = a.id.split('|') as [Family, ColorBucket, string]
+    const [fb, , pb] = b.id.split('|') as [Family, ColorBucket, string]
+    const firstA = pa === 'NEW' ? 1 : 0
+    const firstB = pb === 'NEW' ? 1 : 0
     const ca = COLOR_BUCKET[a.colorGroup]
     const cb = COLOR_BUCKET[b.colorGroup]
-    return order[ca] - order[cb] || familyOrder[fa] - familyOrder[fb]
+    return (
+      firstA - firstB ||
+      order[ca] - order[cb] ||
+      familyOrder[fa] - familyOrder[fb]
+    )
   })
 
   const globalNotes: string[] = []
@@ -293,7 +362,12 @@ export function classify(
   }
   if (loads.length > 1) {
     globalNotes.push(
-      'Orden recomendado: empezá por los blancos/claros y dejá oscuros y delicados para el final.',
+      'Orden recomendado: blancos → claros → colores → oscuros. Delicados, lana y primer lavado de prendas nuevas, al final.',
+    )
+  }
+  if (loads.some((l) => l.isFirstWash)) {
+    globalNotes.push(
+      'Hay prendas nuevas de color: las puse en una tanda de "primer lavado" aparte para que no tiñan al resto.',
     )
   }
 

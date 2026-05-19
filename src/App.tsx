@@ -2,7 +2,12 @@ import { useEffect, useMemo, useState } from 'react'
 import { GarmentForm } from './components/GarmentForm'
 import { LoadCard } from './components/LoadCard'
 import { WasherPicker } from './components/WasherPicker'
-import { COLOR_LABELS, COLOR_SWATCH, FABRIC_LABELS } from './data/garments'
+import {
+  COLOR_GUIDE,
+  COLOR_LABELS,
+  COLOR_SWATCH,
+  FABRIC_LABELS,
+} from './data/garments'
 import { DEFAULT_WASHER_ID, getWasher } from './data/washers'
 import { classify } from './lib/classifier'
 import type { Garment } from './lib/types'
@@ -64,6 +69,20 @@ export default function App() {
       <main>
         <WasherPicker value={washerId} onChange={setWasherId} washer={washer} />
 
+        <section className="card guide">
+          <h2>Guía de colores</h2>
+          <ul className="guide-list">
+            {COLOR_GUIDE.map((g) => (
+              <li key={g.text}>
+                <span className="guide-icon" aria-hidden>
+                  {g.icon}
+                </span>
+                <span>{g.text}</span>
+              </li>
+            ))}
+          </ul>
+        </section>
+
         <GarmentForm onAdd={addGarment} />
 
         {garments.length > 0 && (
@@ -86,7 +105,10 @@ export default function App() {
                     style={{ background: COLOR_SWATCH[g.color] }}
                     aria-hidden
                   />
-                  <span className="g-name">{g.name}</span>
+                  <span className="g-name">
+                    {g.name}
+                    {g.isNew && <span className="tag-new">nueva</span>}
+                  </span>
                   <span className="muted small">
                     {FABRIC_LABELS[g.fabric]} · {COLOR_LABELS[g.color]}
                     {g.qty > 1 ? ` · ×${g.qty}` : ''}

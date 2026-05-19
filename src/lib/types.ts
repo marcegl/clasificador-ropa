@@ -33,6 +33,8 @@ export interface Garment {
   soil: Soil
   /** Cantidad de prendas iguales (para estimar la carga). */
   qty: number
+  /** Prenda nueva: en su primer lavado puede destiñir. */
+  isNew?: boolean
 }
 
 /** Un programa/modo del lavarropas. */
@@ -70,6 +72,14 @@ export interface WashLoad {
   id: string
   title: string
   colorGroup: ColorGroup
+  /** Nombre del grupo de color de la tanda (ej: "Blancos"). */
+  colorBucketLabel: string
+  /** Por qué estos colores van juntos / separados. */
+  colorRule: string
+  /** Color de muestra para la cabecera de la tanda. */
+  colorHex: string
+  /** Es una tanda de primer lavado de prendas nuevas de color. */
+  isFirstWash: boolean
   garments: Garment[]
   program: WasherProgram
   tempC: number

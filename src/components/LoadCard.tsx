@@ -3,11 +3,28 @@ import type { WashLoad } from '../lib/types'
 
 export function LoadCard({ load, index }: { load: WashLoad; index: number }) {
   return (
-    <article className="card load">
+    <article
+      className="card load"
+      style={{ borderLeftColor: load.colorHex, borderLeftWidth: 5 }}
+    >
       <header className="load-head">
         <span className="load-index">Tanda {index + 1}</span>
-        <h3>{load.title}</h3>
+        {load.isFirstWash && <span className="badge-new">🆕 Primer lavado</span>}
       </header>
+
+      <div className="color-banner">
+        <span
+          className="color-dot"
+          style={{ background: load.colorHex }}
+          aria-hidden
+        />
+        <div>
+          <strong className="color-name">{load.colorBucketLabel}</strong>
+          <p className="color-rule">{load.colorRule}</p>
+        </div>
+      </div>
+
+      <h3 className="load-title">{load.title}</h3>
 
       <div className="load-program">
         <div className="program-main">
@@ -41,6 +58,7 @@ export function LoadCard({ load, index }: { load: WashLoad; index: number }) {
             />
             {g.name}
             {g.qty > 1 && <span className="muted"> ×{g.qty}</span>}
+            {g.isNew && <span className="tag-new">nueva</span>}
           </li>
         ))}
       </ul>
@@ -52,7 +70,7 @@ export function LoadCard({ load, index }: { load: WashLoad; index: number }) {
       ))}
       {load.tips.map((t) => (
         <p key={t} className="alert tip">
-          💡 {t}
+          {t}
         </p>
       ))}
     </article>

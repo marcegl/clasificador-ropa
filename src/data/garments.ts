@@ -20,6 +20,15 @@ export const COLOR_LABELS: Record<ColorGroup, string> = {
   negros: 'Negros',
 }
 
+/** Ejemplos concretos para que cada color se clasifique bien. */
+export const COLOR_EXAMPLES: Record<ColorGroup, string> = {
+  blancos: 'blanco puro',
+  claros: 'beige, crema, celeste, rosa claro, gris claro',
+  colores: 'rojo, fucsia, naranja, amarillo, verde claro',
+  oscuros: 'azul, gris oscuro, bordó, verde oscuro, marrón',
+  negros: 'negro',
+}
+
 /** Color de referencia para mostrar un punto en la UI. */
 export const COLOR_SWATCH: Record<ColorGroup, string> = {
   blancos: '#f8fafc',
@@ -28,6 +37,22 @@ export const COLOR_SWATCH: Record<ColorGroup, string> = {
   oscuros: '#475569',
   negros: '#0f172a',
 }
+
+/** Guía fija de colores que se muestra siempre en la UI. */
+export const COLOR_GUIDE: { icon: string; text: string }[] = [
+  {
+    icon: '✅',
+    text: 'Blancos y claros (beige, crema, pastel) son compatibles: podés lavarlos juntos a 40°.',
+  },
+  {
+    icon: '⚠️',
+    text: 'Colores vivos y oscuros van aparte de los claros: pueden teñirlos. Lavalos del revés.',
+  },
+  {
+    icon: '💡',
+    text: 'Prenda de color nueva: el primer lavado, sola o solo con colores iguales (puede destiñir).',
+  },
+]
 
 export const SOIL_LABELS: Record<Soil, string> = {
   poco: 'Poco sucia',
