@@ -10,8 +10,13 @@ interface Props {
 export function WasherPicker({ value, onChange, washer }: Props) {
   return (
     <section className="card washer">
-      <label className="field">
-        <span className="field-label">Lavarropas</span>
+      <div className="section-title">
+        <span className="step-num">1</span>
+        <h2>Tu lavarropas</h2>
+      </div>
+
+      <label className="config-field">
+        <span className="field-label">Modelo</span>
         <select
           value={value}
           onChange={(e) => onChange(e.target.value)}
@@ -31,12 +36,10 @@ export function WasherPicker({ value, onChange, washer }: Props) {
           {washer.capacityDryKg > 0 ? `Seca ${washer.capacityDryKg} kg` : 'Sin secado'}
         </span>
         <span className="chip">{washer.programs.length} programas</span>
-        <span className="chip">
-          Centrifugado hasta {Math.max(...washer.spinSpeeds)} rpm
-        </span>
+        <span className="chip">Hasta {Math.max(...washer.spinSpeeds)} rpm</span>
       </div>
 
-      {washer.disclaimer && <p className="muted small">ⓘ {washer.disclaimer}</p>}
+      {washer.disclaimer && <p className="muted xs">ⓘ {washer.disclaimer}</p>}
     </section>
   )
 }

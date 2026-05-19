@@ -1,13 +1,8 @@
-import { useEffect, useMemo, useState } from 'react'
-import { GarmentForm } from './components/GarmentForm'
-import { LoadCard } from './components/LoadCard'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { ColadaList } from './components/ColadaList'
+import { GarmentCatalog } from './components/GarmentCatalog'
+import { Results } from './components/Results'
 import { WasherPicker } from './components/WasherPicker'
-import {
-  COLOR_GUIDE,
-  COLOR_LABELS,
-  COLOR_SWATCH,
-  FABRIC_LABELS,
-} from './data/garments'
 import { DEFAULT_WASHER_ID, getWasher } from './data/washers'
 import { classify } from './lib/classifier'
 import type { Garment } from './lib/types'
@@ -38,6 +33,7 @@ export default function App() {
   const initial = useMemo(loadState, [])
   const [washerId, setWasherId] = useState(initial.washerId)
   const [garments, setGarments] = useState<Garment[]>(initial.garments)
+  const resultsRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({ washerId, garments }))
@@ -51,110 +47,53 @@ export default function App() {
 
   const addGarment = (g: Omit<Garment, 'id'>) =>
     setGarments((prev) => [...prev, { ...g, id: uid() }])
-
   const removeGarment = (id: string) =>
     setGarments((prev) => prev.filter((g) => g.id !== id))
+
+  const totalPieces = garments.reduce((s, g) => s + g.qty, 0)
 
   return (
     <div className="app">
       <header className="hero">
-        <h1>🧺 Clasificador de Ropa</h1>
+        <span className="hero-mark" aria-hidden>
+          🧺
+        </span>
+        <h1>Clasificador de Ropa</h1>
         <p>
-          Cargá lo que vas a lavar y te armo las tandas: cómo separar por{' '}
-          <strong>color</strong> y <strong>tela</strong>, y qué programa,
-          temperatura y centrifugado usar.
+          Cargá lo que vas a lavar y te armo las tandas: cómo separar por color
+          y tela, y qué programa, temperatura y centrifugado usar.
         </p>
       </header>
 
       <main>
         <WasherPicker value={washerId} onChange={setWasherId} washer={washer} />
 
-        <section className="card guide">
-          <h2>Guía de colores</h2>
-          <ul className="guide-list">
-            {COLOR_GUIDE.map((g) => (
-              <li key={g.text}>
-                <span className="guide-icon" aria-hidden>
-                  {g.icon}
-                </span>
-                <span>{g.text}</span>
-              </li>
-            ))}
-          </ul>
-        </section>
-
-        <GarmentForm onAdd={addGarment} />
+        <GarmentCatalog onAdd={addGarment} />
 
         {garments.length > 0 && (
-          <section className="card">
-            <div className="list-head">
-              <h2>Tu ropa ({garments.length})</h2>
-              <button
-                type="button"
-                className="btn-ghost"
-                onClick={() => setGarments([])}
-              >
-                Vaciar todo
-              </button>
-            </div>
-            <ul className="garment-list">
-              {garments.map((g) => (
-                <li key={g.id}>
-                  <span
-                    className="swatch"
-                    style={{ background: COLOR_SWATCH[g.color] }}
-                    aria-hidden
-                  />
-                  <span className="g-name">
-                    {g.name}
-                    {g.isNew && <span className="tag-new">nueva</span>}
-                  </span>
-                  <span className="muted small">
-                    {FABRIC_LABELS[g.fabric]} · {COLOR_LABELS[g.color]}
-                    {g.qty > 1 ? ` · ×${g.qty}` : ''}
-                  </span>
-                  <button
-                    type="button"
-                    className="btn-x"
-                    aria-label={`Quitar ${g.name}`}
-                    onClick={() => removeGarment(g.id)}
-                  >
-                    ✕
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </section>
+          <ColadaList
+            garments={garments}
+            onRemove={removeGarment}
+            onClear={() => setGarments([])}
+          />
         )}
 
-        {loads.length > 0 && (
-          <section className="results">
-            <h2>Tandas recomendadas</h2>
-            {globalNotes.map((n) => (
-              <p key={n} className="alert info">
-                {n}
-              </p>
-            ))}
-            <div className="loads">
-              {loads.map((load, i) => (
-                <LoadCard key={load.id} load={load} index={i} />
-              ))}
-            </div>
-          </section>
-        )}
-
-        {garments.length === 0 && (
+        {garments.length > 0 ? (
+          <div ref={resultsRef}>
+            <Results loads={loads} globalNotes={globalNotes} />
+          </div>
+        ) : (
           <p className="empty">
-            Agregá prendas con los botones rápidos o el formulario para ver las
-            tandas recomendadas.
+            <span aria-hidden>👚</span>
+            Agregá prendas desde el catálogo para ver tus tandas.
           </p>
         )}
       </main>
 
       <footer className="footer">
         <p>
-          Proyecto open source · Las recomendaciones son una guía: respetá
-          siempre la etiqueta de cada prenda.
+          Open source · Las recomendaciones son una guía: respetá siempre la
+          etiqueta de cada prenda.
         </p>
         <p>
           <a
@@ -166,6 +105,23 @@ export default function App() {
           </a>
         </p>
       </footer>
+
+      {garments.length > 0 && (
+        <div className="summary-bar">
+          <span>
+            <strong>{totalPieces}</strong> {totalPieces === 1 ? 'prenda' : 'prendas'}
+            <span className="dot">·</span>
+            <strong>{loads.length}</strong> {loads.length === 1 ? 'tanda' : 'tandas'}
+          </span>
+          <button
+            onClick={() =>
+              resultsRef.current?.scrollIntoView({ behavior: 'smooth' })
+            }
+          >
+            Ver tandas ↓
+          </button>
+        </div>
+      )}
     </div>
   )
 }

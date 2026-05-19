@@ -1,49 +1,46 @@
+import type { CSSProperties } from 'react'
 import { COLOR_SWATCH } from '../data/garments'
 import type { WashLoad } from '../lib/types'
 
 export function LoadCard({ load, index }: { load: WashLoad; index: number }) {
+  const cardStyle = {
+    '--load-color': load.colorHex,
+  } as unknown as CSSProperties
+
   return (
-    <article
-      className="card load"
-      style={{ borderLeftColor: load.colorHex, borderLeftWidth: 5 }}
-    >
+    <article className="card load" style={cardStyle}>
       <header className="load-head">
         <span className="load-index">Tanda {index + 1}</span>
         {load.isFirstWash && <span className="badge-new">🆕 Primer lavado</span>}
       </header>
 
       <div className="color-banner">
-        <span
-          className="color-dot"
-          style={{ background: load.colorHex }}
-          aria-hidden
-        />
+        <span className="color-dot" aria-hidden />
         <div>
           <strong className="color-name">{load.colorBucketLabel}</strong>
           <p className="color-rule">{load.colorRule}</p>
         </div>
       </div>
 
-      <h3 className="load-title">{load.title}</h3>
-
-      <div className="load-program">
-        <div className="program-main">
-          <span className="program-name">{load.program.name}</span>
-          <div className="program-stats">
-            <span className="stat">
-              <strong>{load.tempC}°</strong>
-              <small>temperatura</small>
-            </span>
-            <span className="stat">
-              <strong>{load.spinRpm > 0 ? `${load.spinRpm}` : '—'}</strong>
-              <small>centrifugado (rpm)</small>
-            </span>
-            <span className="stat">
-              <strong className={load.canDry ? 'ok' : 'no'}>
-                {load.canDry ? 'Sí' : 'No'}
-              </strong>
-              <small>se puede secar</small>
-            </span>
+      <div className="panel">
+        <div className="panel-program">
+          <small>Programa</small>
+          <strong>{load.program.name}</strong>
+        </div>
+        <div className="panel-stats">
+          <div className="stat">
+            <strong>{load.tempC}°</strong>
+            <small>temp.</small>
+          </div>
+          <div className="stat">
+            <strong>{load.spinRpm > 0 ? load.spinRpm : '—'}</strong>
+            <small>rpm</small>
+          </div>
+          <div className="stat">
+            <strong className={load.canDry ? 'ok' : 'no'}>
+              {load.canDry ? 'Sí' : 'No'}
+            </strong>
+            <small>secar</small>
           </div>
         </div>
       </div>
@@ -65,7 +62,7 @@ export function LoadCard({ load, index }: { load: WashLoad; index: number }) {
 
       {load.warnings.map((w) => (
         <p key={w} className="alert warn">
-          ⚠ {w}
+          {w}
         </p>
       ))}
       {load.tips.map((t) => (
